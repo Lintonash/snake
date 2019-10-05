@@ -4,9 +4,40 @@ WIDTH = 500
 ROWS = 20
 
 
-class Snake:
-    def __init__(self):
-        pass
+class Cube(object):
+    pass
+
+
+class Snake(object):
+
+    def __init__(self, color, pos):
+        self.color = color
+        self.body = []  # list of Cubes
+        self.head_pos = pos
+        self.body.append(Cube(self.head_pos))
+        self.dirx = 0
+        self.diry = 1
+        self.key_dir_map = {
+            pygame.K_LEFT: (-1, 0),
+            pygame.K_RIGHT: (1, 0),
+            pygame.K_UP: (0, -1),
+            pygame.K_DOWN: (0, 1)
+        }
+
+    def move(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            keys = pygame.key.get_pressed()
+
+            for key in self.key_dir_map:
+                if keys[key] and self.key_dir_map[key] != (-self.dirx, -self.diry):  # Can't go to opposite direction
+                    self.dirx, self.diry = self.key_dir_map[key]
+                    break
+
+        self.body.pop()
+        self.head_pos = (self.head_pos[0] + self.dirx, self.head_pos[1] + self.diry)
+        self.body.insert(0, Cube(self.head_pos))
 
 
 class Game:
@@ -36,9 +67,10 @@ class Game:
 
     def play(self):
         while self.game_on:
-            pygame.time.delay(50)
+            pygame.time.delay(100)
             self.clock.tick(10)
             self.redraw_window()
+
 
 if __name__ == '__main__':
     my_game = Game()
