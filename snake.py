@@ -11,7 +11,7 @@ class Cube(object):
     rows = ROWS
     width = WIDTH
 
-    def __init__(self, pos, col=(255, 0, 0)):
+    def __init__(self, pos, col):
         self.pos = pos
         self.color = col
 
@@ -32,18 +32,20 @@ class Cube(object):
 
 class Candy(object):
     def __init__(self, pos, col=(255, 255, 0)):
-        self.cube = Cube(pos, col)
+        self.pos = pos
+        self.color = col
+        self.cube = Cube(self.pos, self.color)
 
     def draw(self, window):
         self.cube.draw(window)
 
 
 class Snake(object):
-    def __init__(self, pos, col):
+    def __init__(self, pos, col=(255, 0, 0)):
         self.color = col
         self.body = []  # list of Cubes
         self.head_pos = pos
-        self.body.append(Cube(self.head_pos))
+        self.body.append(Cube(self.head_pos, self.color))
         self.dirx = 0
         self.diry = 1
         self.key_dir_map = {
@@ -53,7 +55,7 @@ class Snake(object):
             K_DOWN: (0, 1)
         }
 
-    def move(self):
+    def move(self, candy):
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -65,11 +67,16 @@ class Snake(object):
                     break
 
         self.head_pos = (self.head_pos[0] + self.dirx, self.head_pos[1] + self.diry)
-        self.body.insert(0, Cube(self.head_pos))
-        self.body.pop()
+        self.body.insert(0, Cube(self.head_pos, self.color))
+        if not self.eat(candy):
+            self.body.pop()
+            return False
+        return True
 
-    def eat(self):
-        if self.head_pos
+    def eat(self, candy):
+        if self.head_pos == candy.pos:
+            return True
+        return False
 
     def draw(self, window):
         for i, c in enumerate(self.body):
@@ -110,6 +117,7 @@ class Game:
     def redraw_window(self):
         self.window.fill((0, 0, 0))
         self.snake.draw(self.window)
+        self.candy.draw(self.window)
         self.draw_grid()
         pygame.display.update()
 
@@ -121,7 +129,8 @@ class Game:
                     sys.exit()
             pygame.time.delay(100)
             self.clock.tick(10)
-            self.snake.move()
+            if self.snake.move(self.candy):
+                self.candy = self.generate_candy()
             self.redraw_window()
 
 
