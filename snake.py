@@ -1,4 +1,7 @@
 import pygame
+import sys
+from pygame.locals import *
+
 
 WIDTH = 500
 ROWS = 20
@@ -67,6 +70,9 @@ class Game:
 
     def play(self):
         while self.game_on:
+            for event in pygame.event.get():
+                if event.type in (QUIT, KEYDOWN):
+                    sys.exit()
             pygame.time.delay(100)
             self.clock.tick(10)
             self.redraw_window()
