@@ -5,6 +5,12 @@ from pygame.locals import *
 
 WIDTH = 500
 ROWS = 20
+KEY_DIR_MAP = {
+            K_LEFT: (-1, 0),
+            K_RIGHT: (1, 0),
+            K_UP: (0, -1),
+            K_DOWN: (0, 1)
+        }
 
 
 class Cube(object):
@@ -48,12 +54,6 @@ class Snake(object):
         self.body.append(Cube(self.head_pos, self.color))
         self.dirx = 0
         self.diry = 1
-        self.key_dir_map = {
-            K_LEFT: (-1, 0),
-            K_RIGHT: (1, 0),
-            K_UP: (0, -1),
-            K_DOWN: (0, 1)
-        }
 
     def move(self, candy):
         for event in pygame.event.get():
@@ -61,12 +61,14 @@ class Snake(object):
                 pygame.quit()
             keys = pygame.key.get_pressed()
 
-            for key in self.key_dir_map:
-                if keys[key] and self.key_dir_map[key] != (-self.dirx, -self.diry):  # Can't go to opposite direction
-                    self.dirx, self.diry = self.key_dir_map[key]
+            for key in KEY_DIR_MAP:
+                if keys[key] and KEY_DIR_MAP[key] != (-self.dirx, -self.diry):  # Can't go to opposite direction
+                    self.dirx, self.diry = KEY_DIR_MAP[key]
                     break
 
         self.head_pos = (self.head_pos[0] + self.dirx, self.head_pos[1] + self.diry)
+        if self.head_pos in [c.pos for c in self.body]:
+            pygame.quit()
         self.body.insert(0, Cube(self.head_pos, self.color))
         if not self.eat(candy):
             self.body.pop()
@@ -122,13 +124,17 @@ class Game:
         pygame.display.update()
 
     def play(self):
-        while self.game_on:
-            # Necessary sentence
+        while self.game_on and -1 < self.snake.head_pos[0] < 20 and -1 < self.snake.head_pos[1] < 20:
             for event in pygame.event.get():
                 if event.type == QUIT:
-                    sys.exit()
-            pygame.time.delay(100)
-            self.clock.tick(10)
+                    pygame.quit()
+                keys = pygame.key.get_pressed()
+                for key in KEY_DIR_MAP:
+                    if keys[key] and KEY_DIR_MAP[key] != (-self.snake.dirx, -self.snake.diry):  # Can't go to opposite direction
+                        self.snake.dirx, self.snake.diry = KEY_DIR_MAP[key]
+                        break
+            pygame.time.delay(50)
+            self.clock.tick(5)
             if self.snake.move(self.candy):
                 self.candy = self.generate_candy()
             self.redraw_window()
