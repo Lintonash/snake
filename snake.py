@@ -1,5 +1,4 @@
 import pygame
-import sys
 import random
 from pygame.locals import *
 
@@ -101,9 +100,9 @@ class Game:
 
     def generate_candy(self):
         snake_pos = [c.pos for c in self.snake.body]
-        x, y = random.randint(0, 20), random.randint(0, 20)
+        x, y = random.randint(0, 19), random.randint(0, 19)
         while (x, y) in snake_pos:
-            x, y = random.randint(0, 20), random.randint(0, 20)
+            x, y = random.randint(0, 19), random.randint(0, 19)
         return Candy((x, y))
 
     def draw_grid(self):
